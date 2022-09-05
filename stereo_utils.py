@@ -153,7 +153,7 @@ def compute_fundamental_matrix(points1, points2):
     # make rank 2 by zeroing out last singular value
     U, S, V = np.linalg.svd(F, full_matrices=True)
     S[-1] = 0 # zero out the last singular value
-    F = U @ np.diag(S) @ V
+    F = U @ np.diag(S) @ V # recombine again
     return F
 
 def plot_epipolar_lines(img1, img2, points1, points2, show_epipole=False):
@@ -245,7 +245,7 @@ def compute_matching_homographies(e2, F, im2, points1, points2):
     Compute the matching homography matrices
     '''
     h, w = im2.shape
-    # create the homography matrix that moves the epipole to infinity
+    # create the homography matrix H2 that moves the epipole to infinity
     
     # create the translation matrix to shift to the image center
     T = np.array([[1, 0, -w/2], [0, 1, -h/2], [0, 0, 1]])
@@ -253,18 +253,18 @@ def compute_matching_homographies(e2, F, im2, points1, points2):
     e2_p = e2_p / e2_p[2]
     e2x = e2_p[0]
     e2y = e2_p[1]
+    # create the rotation matrix to rotate the epipole back to X axis
     if e2x >= 0:
         a = 1
     else:
         a = -1
-    # create the rotation matrix to move the epipole to the Y axis
     R1 = a * e2x / np.sqrt(e2x ** 2 + e2y ** 2)
     R2 = a * e2y / np.sqrt(e2x ** 2 + e2y ** 2)
     R = np.array([[R1, R2, 0], [-R2, R1, 0], [0, 0, 1]])
     e2_p = R @ e2_p
-    f = e2_p[0]
-    # move the epipole to infinity
-    G = np.array([[1, 0, 0], [0, 1, 0], [-1/f, 0, 1]])
+    x = e2_p[0]
+    # create matrix to move the epipole to infinity
+    G = np.array([[1, 0, 0], [0, 1, 0], [-1/x, 0, 1]])
     # create the overall transformation matrix
     H2 = np.linalg.inv(T) @ G @ R @ T
 

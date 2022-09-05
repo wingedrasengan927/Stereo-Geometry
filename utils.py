@@ -318,9 +318,9 @@ def compute_world2img_projection(world_points, M, is_homogeneous=False):
     '''
     if not is_homogeneous:
         # convert to homogeneous coordinates
-        points_h = np.vstack((world_points, np.ones(world_points.shape[1])))
+        world_points = np.vstack((world_points, np.ones(world_points.shape[1])))
         
-    h_points_i = M @ points_h
+    h_points_i = M @ world_points
     
     h_points_i[0, :] = h_points_i[0, :] / h_points_i[2, :]
     h_points_i[1, :] = h_points_i[1, :] / h_points_i[2, :]
